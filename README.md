@@ -13,15 +13,15 @@ Note that this package uses the primary functions from
 [`SoftBART`](https://github.com/theodds/SoftBART) to incorporate the
 SoftBART model as a component.
 
-## Install
+## Installation
 
 This repository includes two packages: `skewBART` and `MultiskewBART`.
-After downloading this repository, install both of these packages by
-running
+The packages can be installed with the `devtools` package:
 
 ``` r
-system("R CMD build /skewBART")
-system("R CMD build /MultiskewBART")
+library(devtools) 
+devtools::install_github(repo='Seungha-Um/skewBART', subdir='/skewBART') 
+devtools::install_github(repo='Seungha-Um/skewBART', subdir='/MultiskewBART', force = TRUE) 
 ```
 
 ## Status of developement
