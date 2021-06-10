@@ -9,12 +9,20 @@ This repository contains code to implement the methodology described in
 the paper “Bayesian Additive Regression Trees for Multivariate Skewed
 Responses”, by Um et al (2021+).
 
-There are two packages included in this repository: skewBART and
-MultiskewBART.
-
 Note that this package uses the primary functions from
 [`SoftBART`](https://github.com/theodds/SoftBART) to incorporate the
 SoftBART model as a component.
+
+## Install
+
+This repository includes two packages: `skewBART` and `MultiskewBART`.
+After downloading this repository, install both of these packages by
+running
+
+``` console
+system("R CMD build /skewBART")
+system("R CMD build /MultiskewBART")
+```
 
 ## Status of developement
 
