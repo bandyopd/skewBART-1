@@ -19,7 +19,7 @@ This repository includes two packages: `skewBART` and `MultiskewBART`.
 After downloading this repository, install both of these packages by
 running
 
-``` console
+``` r
 system("R CMD build /skewBART")
 system("R CMD build /MultiskewBART")
 ```
