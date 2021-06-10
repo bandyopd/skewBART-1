@@ -21,7 +21,7 @@ Note that this package uses the primary functions from [`SoftBART`](https://gith
 
 This repository includes two packages: `skewBART` and `MultiskewBART`. After downloading this repository, install both of these packages by running
 
-```console
+```{r, eval = FALSE}
 system("R CMD build /skewBART")
 system("R CMD build /MultiskewBART")
 ```
