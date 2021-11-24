@@ -26,6 +26,10 @@ library(devtools)
 devtools::install_github(repo='Seungha-Um/skewBART', subdir='/skewBART') 
 devtools::install_github(repo='Seungha-Um/skewBART', subdir='/MultiskewBART', force = TRUE) 
 ```
+## Documentation
+
+Vignette is available at
+
 
 ## Status of developement
 
