@@ -31,7 +31,7 @@ provided for research purposes.
 
 ## Documentation
 
-Vignette is available at https://github.com/Seungha-Um/skewBART/blob/master/vignettes/Vignette.html
+Vignette is available at https://seungha-um.github.io/vignettes/Vignette.html
 
 ## Usage
 
