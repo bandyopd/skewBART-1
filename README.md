@@ -29,6 +29,10 @@ devtools::install_github(repo='Seungha-Um/skewBART', subdir='/MultiskewBART', fo
 The code provided here is being actively developed and only being
 provided for research purposes.
 
+## Documentation
+
+Vignette is available at
+
 ## Usage
 
 #### skewBART model (univariate response)
