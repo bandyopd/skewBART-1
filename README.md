@@ -31,7 +31,7 @@ provided for research purposes.
 
 ## Documentation
 
-Vignette is available at
+Vignette is available at https://rpubs.com/sheom0808/840839
 
 ## Usage
 
