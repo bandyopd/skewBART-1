@@ -18,7 +18,6 @@
 #' @param alpha_scale Scale of the prior for alpha; if not provided, defaults to P
 #' @param alpha_shape_1 Shape parameter for prior on alpha; if not provided, defaults to 0.5
 #' @param alpha_shape_2 Shape parameter for prior on alpha; if not provided, defaults to 1.0
-#' @param num_tree_prob Parameter for geometric prior on number of tree
 #'
 #' @return Returns a list containing the function arguments.
 Hypers <- function(X,Y, group = NULL, alpha = 1, beta = 2, gamma = 0.95, k = 2,
@@ -62,6 +61,8 @@ Hypers <- function(X,Y, group = NULL, alpha = 1, beta = 2, gamma = 0.95, k = 2,
 
 #' MCMC options for skewBART
 #'
+#' Creates a list which provides the parameters for running the Markov chain.
+#'
 #' @param X NxP matrix of training data covariates.
 #' @param Y Nx1 vector of training data response.
 #' @param test_X MxP matrix of test data covariates
@@ -73,8 +74,8 @@ Hypers <- function(X,Y, group = NULL, alpha = 1, beta = 2, gamma = 0.95, k = 2,
 #' \itemize{
 #'   \item y_hat_train: fit to the training data for each iteration of the chain
 #'   \item y_hat_test: fit to the testing data for each iteration of the chain
-#'   \item sigma: posterior samples of the error standard deviations
-#'   \item lambda: posterior samples of lambda
+#'   \item sigma: posterior samples of the error standard deviations (sigma^2/(1+alpha^2))
+#'   \item lambda: posterior samples of skewness (alpha*sigma/sqrt(1+alpha^2))
 #' }
 #'
 #' @export
