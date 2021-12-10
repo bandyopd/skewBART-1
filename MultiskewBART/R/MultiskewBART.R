@@ -1,3 +1,21 @@
+#' MCMC options for skewBART
+#'
+#' @param X NxP matrix of training data covariates.
+#' @param Y Nxk matrix of training data response.
+#' @param test_X MxP matrix of test data covariates
+#' @param tree_num the number of trees
+#' @param iter Number of MCMC iteration
+#' @param burn Number of warmup iterations for the chain.
+#'
+#' @return Returns a list with the following components:
+#' \itemize{
+#'   \item y_hat_train: fit to the training data for each iteration of the chain
+#'   \item y_hat_test: fit to the testing data for each iteration of the chain
+#'   \item Sigma: posterior samples of the covariance matrix
+#'   \item lambda: posterior samples of skewness matrix
+#' }
+#' @export
+#'
 MultiskewBART <- function(X = X_norm, Y = Y_scaled, test_X = test_X_norm, tree_num=200, iter= 5000, burn =2500){
   hypers$num_tree <- tree_num
   opts   <- Opts()
