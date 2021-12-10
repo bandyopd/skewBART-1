@@ -36,5 +36,5 @@ Returns a list with the following components:
 }
 }
 \description{
-MCMC options for skewBART
+Creates a list which provides the parameters for running the Markov chain.
 }
