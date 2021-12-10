@@ -31,8 +31,8 @@ Returns a list with the following components:
 \itemize{
   \item y_hat_train: fit to the training data for each iteration of the chain
   \item y_hat_test: fit to the testing data for each iteration of the chain
-  \item sigma: posterior samples of the error standard deviations
-  \item lambda: posterior samples of lambda
+  \item sigma: posterior samples of the error standard deviations (sigma^2/(1+alpha^2))
+  \item lambda: posterior samples of skewness (alpha*sigma/sqrt(1+alpha^2))
 }
 }
 \description{

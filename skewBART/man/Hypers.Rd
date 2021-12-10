@@ -51,8 +51,6 @@ Hypers(
 \item{alpha_shape_1}{Shape parameter for prior on alpha; if not provided, defaults to 0.5}
 
 \item{alpha_shape_2}{Shape parameter for prior on alpha; if not provided, defaults to 1.0}
-
-\item{num_tree_prob}{Parameter for geometric prior on number of tree}
 }
 \value{
 Returns a list containing the function arguments.
