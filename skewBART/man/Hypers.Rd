@@ -58,7 +58,6 @@ Hypers(
 Returns a list containing the function arguments.
 }
 \description{
-This Hypers function comes from SoftBART to incorporate the SoftBART model as a component.
-Creates a list which holds all the hyperparameters for use with the softbart
-command.
+Borrows the Hypers function from SoftBART packages to incorporate the SoftBART model as a component.
+Creates a list which holds all the hyperparameters for use with the skewBART.
 }
