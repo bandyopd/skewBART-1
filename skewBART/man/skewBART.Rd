@@ -18,7 +18,7 @@ skewBART(
 
 \item{Y}{Nx1 vector of training data response.}
 
-\item{test_X}{N'xP matrix of test data covariates}
+\item{test_X}{MxP matrix of test data covariates}
 
 \item{tree_num}{the number of trees}
 
@@ -27,7 +27,13 @@ skewBART(
 \item{burn}{Number of warmup iterations for the chain.}
 }
 \value{
-Returns a list containing the function arguments.
+Returns a list with the following components:
+\itemize{
+  \item y_hat_train: fit to the training data for each iteration of the chain
+  \item y_hat_test: fit to the testing data for each iteration of the chain
+  \item sigma: posterior samples of the error standard deviations
+  \item lambda: posterior samples of lambda
+}
 }
 \description{
 MCMC options for skewBART
