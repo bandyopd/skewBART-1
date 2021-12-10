@@ -1,8 +1,8 @@
 #' Create hyperparameter object for skewBART (Hypers function from SoftBART)
 #'
-#' This Hypers function comes from SoftBART to incorporate the SoftBART model as a component.
-#' Creates a list which holds all the hyperparameters for use with the softbart
-#' command.
+#' Borrows the Hypers function from SoftBART packages to incorporate the SoftBART model as a component.
+#' Creates a list which holds all the hyperparameters for use with the skewBART.
+#'
 #'
 #' @param X NxP matrix of training data covariates.
 #' @param Y Nx1 vector of training data response.
