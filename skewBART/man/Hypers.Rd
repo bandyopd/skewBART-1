@@ -2,7 +2,7 @@
 % Please edit documentation in R/skewBART.R
 \name{Hypers}
 \alias{Hypers}
-\title{Create hyperparameter object for skewBART}
+\title{Create hyperparameter object for skewBART (Hypers function from SoftBART)}
 \usage{
 Hypers(
   X,
