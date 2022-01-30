@@ -163,14 +163,13 @@ skewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL){
   alpha <- lambda / tau
   sigma <- tau * sqrt(1 + alpha^2)
 
-  # Y_hat_train1 <- colMeans(mu_hat[-c(1:burn),]) * scale_Y + center_Y
-  # Y_hat_test1 <- colMeans(mu_hat_test[-c(1:burn),]) * scale_Y + center_Y
-  #
-  # Y_hat_train <- Y_hat_train1 + Lam_est * sqrt(2/pi)
-  # Y_hat_test <- Y_hat_test1 + Lam_est * sqrt(2/pi)
   Y_hat_train <- mu_hat[-c(1:burn), ] * scale_Y + center_Y
   Y_hat_test <- mu_hat_test[-c(1:burn),] * scale_Y + center_Y
+    Y_hat_train_mean <- colMeans(Y_hat_train)
+  Y_hat_test_mean <- colMeans(Y_hat_test)
+
   return(list(y_hat_train = Y_hat_train, y_hat_test = Y_hat_test,
+              y_hat_train_mean=Y_hat_train_mean, y_hat_test_mean=Y_hat_test_mean,
               sigma = sigma, tau = tau, alpha = alpha, lambda = lambda))
 }
 
