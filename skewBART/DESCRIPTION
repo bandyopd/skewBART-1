@@ -1,0 +1,14 @@
+Package: skewBART
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL-2
+Imports: methods, truncnorm (>= 1.0), glmnet (>= 2.0), sn
+LinkingTo: Rcpp, RcppArmadillo
+Depends: Rcpp
+Suggests: zeallot
+RoxygenNote: 7.1.1

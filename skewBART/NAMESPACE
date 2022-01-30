@@ -1,0 +1,13 @@
+useDynLib(skewBART)
+importFrom(Rcpp, evalCpp)
+importFrom(Rcpp, Module)
+importFrom(truncnorm, rtruncnorm)
+importFrom(sn, dsn)
+importFrom("graphics", "contour", "image", "lines", "par", "title")
+importFrom("methods", "new")
+importFrom("stats", "dbinom", "model.matrix", "pnorm", "predict",
+           "qnorm", "quantile", "rnorm", "runif", "sd")
+importFrom(glmnet, cv.glmnet)
+export(Hypers)
+export(Opts)
+export(skewBART)
