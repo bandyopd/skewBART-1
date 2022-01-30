@@ -91,21 +91,12 @@ MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TR
     }
   }
 
-  # EST_Lam <- colMeans(Lam_est[c(burn:iter),]) * scale_Y
-  #
-  # EST_mu <- t(t(apply(mu_out[,,c(burn:iter)], c(1,2), mean) %*% diag(scale_Y)) + center_Y)
-  # EST_train_Y <- t( t(EST_mu) + sqrt(2/pi) * EST_Lam )
-  #
-  # EST_t_mu <- t(t(apply(mu_test_out[,,c(burn:iter)], c(1,2), mean) %*% diag(scale_Y)) + center_Y)
-  # EST_test_Y <- t( t(EST_t_mu) + sqrt(2/pi) * EST_Lam )
-  #
-  # skew_Sig1 <- apply(Sigma_out[,,c(burn:iter)], c(1,2), mean)
-  # skew_Sig <- matrix(c(skew_Sig1[1,1]*scale_Y[1]^2, skew_Sig1[1,2]*scale_Y[1]*scale_Y[2],
-  #                      skew_Sig1[2,1]*scale_Y[1]*scale_Y[2],
-  #                      skew_Sig1[2,2]*scale_Y[2]^2),2,2)
-
-  # EST_Tau <- c(skew_Sig[1,1], skew_Sig[2,2])
-  return(list(mu_train = mu, mu_test = mu_test, lambda = lambda, Sigma = Sigma))
+ 
+  Y_hat_train_mean <- apply(mu, c(1,2), mean)
+  Y_hat_test_mean <- apply(mu_test, c(1,2), mean)
+  return(list(y_hat_train = mu, y_hat_train = mu_test, 
+              y_hat_train_mean = Y_hat_train_mean, y_hat_test_mean = Y_hat_test_mean,
+              lambda = lambda, Sigma = Sigma))
 }
 
 
