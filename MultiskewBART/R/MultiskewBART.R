@@ -94,7 +94,7 @@ MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TR
  
   Y_hat_train_mean <- apply(mu, c(1,2), mean)
   Y_hat_test_mean <- apply(mu_test, c(1,2), mean)
-  return(list(y_hat_train = mu, y_hat_train = mu_test, 
+  return(list(y_hat_train = mu, y_hat_test = mu_test, 
               y_hat_train_mean = Y_hat_train_mean, y_hat_test_mean = Y_hat_test_mean,
               lambda = lambda, Sigma = Sigma))
 }
