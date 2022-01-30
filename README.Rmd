@@ -28,7 +28,7 @@ devtools::install_github(repo='Seungha-Um/skewBART', subdir='/MultiskewBART', fo
 ```
 ## Documentation
 
-Vignette is available at
+Vignette is available at [https://github.com/Seungha-Um/skewBART/blob/master/vignettes/Vignette.html](https://github.com/Seungha-Um/skewBART/blob/master/vignettes/Vignette.html)
 
 
 ## Status of developement
