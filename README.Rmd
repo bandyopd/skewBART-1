@@ -46,8 +46,9 @@ The following is an example on “Friedman’s example”:
 ```{r, eval = FALSE}
 ## Load library
 library(skewBART)
+library(zeallot)
 
-## Generate fake data
+## Create a function for Friedman’s example
 sim_fried <- function(N, P, alpha, sigma) {
   lambda <- alpha * sigma/sqrt(1+alpha^2)
   tau <- sigma/sqrt(1+alpha^2)
@@ -60,37 +61,30 @@ sim_fried <- function(N, P, alpha, sigma) {
 }
 
 ## Simulate dataset
+## Traning dataset : n = 250 observations, P = 5 covariates, sigma = 2, alpha = 5 
 set.seed(12345)
-c(X,Y,EY,mu,Z,tau,lambda) %<-% sim_fried(250, 100, 5, 1)
-c(test_X,test_Y,test_EY,test_mu,test_Z,test_tau,test_lambda)  %<-% sim_fried(250, 100, 5 ,1)
-```
+c(X,Y,EY,mu,Z,tau,lambda) %<-% sim_fried(250, 5, 5, 2)
 
-The predictors are scaled to lie in [0,1] using quantile normalization and the response Y is scaled to mean 0 and standard deviation 1 :
-
-```{r, eval = FALSE}
-X_norm <- quantile_normalize(X, test_X)$X
-test_X_norm <- quantile_normalize(X, test_X)$test_X
-Y_scaled <- scale(Y)
-c(Y_dims, center_Y, scale_Y) %<-% attributes(Y_scaled)
+## Test dataset : n = 100 observations, P = 5 covariates, sigma = 2, alpha = 5
+c(test_X,test_Y,test_EY,test_mu,test_Z,test_tau,test_lambda)  %<-% sim_fried(100, 5, 5 ,2)
 ```
 
 The function `Hypers` produces a list of the hyperparameters of the model. 
 
 ```{r, eval = FALSE}
-hypers <- Hypers(X = X_norm, Y = Y_scaled)
+hypers <- Hypers(X, Y)
+opts <- Opts(num_burn = 5000, num_save = 5000)
 ```
 
-We can then fit the model as 
+We can fit the model as 
 
 ```{r, eval = FALSE}
 ## Fit the model
-fit <- skewBART(X = X_norm, Y = Y_scaled, test_X = test_X_norm, tree_num=200, iter= 5000, burn =2500)
+fitted_skewbart <- skewBART(X, Y, test_X, hypers, opts)
 
 ## Compare the quality of the fit
 rmse <- function(x,y) sqrt(mean((x-y)^2))
-
-rmse(fit$y_hat_train, EY)
-rmse(fit$y_hat_test, test_EY)
+rmse(fitted_skewbart$y_hat_test_mean, test_mu)
 ```
 
 
@@ -102,8 +96,10 @@ The `MultiskewBART` packages provides a nonparametric regression approach for mu
 ```{r, eval = FALSE}
 ## Load library
 library(MultiskewBART)
+library(MASS)
+library(zeallot)
 
-## Generate fake data
+## Create a function for Friedman example with multivariate framework
 sim_data_multi <- function(N, P, lambda, tau, rho) {
   X <- matrix(runif(N * P), nrow = N)
   mu <- 10 * sin(pi * X[,1] * X[,2]) + 20 * (X[,3] - 0.5)^2 + 10 * X[,4] + 5 * X[,5] 
@@ -116,37 +112,24 @@ sim_data_multi <- function(N, P, lambda, tau, rho) {
 }
 
 ## Simulate dataset
+## Traning dataset : n = 250 observations, P = 5 covariates, lambda = (2,3), tau = c(1,1), rho = 0.5.
 set.seed(12345)
 c(X,Y,EY,mu,lambda,tau,Z,Sigma) %<-% sim_data_multi(250, 5, c(2,3), c(1,1), 0.5)
+
+## Test dataset : n = 250 observations, P = 5 covariates, lambda = (2,3), tau = c(1,1), rho = 0.5.
 c(test_X,test_Y,test_EY,test_mu,test_lambda,test_tau,test_Z,test_Sigma) %<-% sim_data_multi(100, 5, c(2,3), c(1,1), 0.5)
 
-## preprocess data
-X_norm <- quantile_normalize(X, test_X)$X
-test_X_norm <- quantile_normalize(X, test_X)$test_X
-Y_scaled <- scale(Y)
-center_Y <- attributes(Y_scaled)$`scaled:center`
-scale_Y <- attributes(Y_scaled)$`scaled:scale`
-
 ## Create a list of the hyperparameters of the model. 
-hypers <- Hypers(X = X_norm, Y = Y_scaled)
+hypers <- Hypers(X = X, Y = Y)
+opts <- Opts(num_burn = 5000, num_save = 5000)
 ```
 
-We can then fit the model as 
+We can fit the model as 
 
 ```{r, eval = FALSE}
 ## Fit the model
-fit <- MultiskewBART(X = X_norm, Y = Y_scaled, test_X = test_X_norm, tree_num=200, iter= 2500, burn =5000) 
-
+fitted_Multiskewbart <- MultiskewBART(X = X, Y = Y, test_X = test_X, hypers=hypers, opts=opts) 
 ## Compare the quality of the fit
 rmse <- function(x,y) sqrt(mean((x-y)^2))
-rmse(fit$y_hat_train, t(EY))
-rmse(fit$y_hat_test, t(test_EY))
+rmse(fitted_Multiskewbart$y_hat_test, t(test_EY))
 ```
-
-
-
-
-
-
-
-
