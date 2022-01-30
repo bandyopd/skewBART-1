@@ -1,0 +1,335 @@
+---
+title: "Bayesian Additive Regression Trees for Multivariate skewed responses"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+```
+
+Seungha Um
+
+Last Updated - Jan 30, 2022
+
+## Introduction 
+
+This function implements the methodology described in the paper
+
+- Um, S. & Linero A. & Sinha D. & Bandyopadhyay D. (2021). *Bayesian Additive Regression Trees for Multivariate skewed responses*  
+[[paper]](https://github.com/Seungha-Um/skewBART)[[Github]](https://github.com/Seungha-Um/skewBART)
+
+## Model 
+Our proposed model is an extension of BART to accommodate univariate and multivariate skewed responses.
+
+### Univariate skewBART
+
+We first introduce the univariate \texttt{skewBART} model, which is an extension of BART to accommodate skewed responses. We approximate the nonparametric  regression function using a sum-of-trees model with an skew-normal distribution for $Y = (Y_1, \ldots, Y_n)$ as
+
+\begin{align}\label{uniskew}
+	Y_i = \sum^m_{t=1} g(\pmb x_i; \mathcal{T}_t,\mathcal{M}_t) + \epsilon_i,\hskip1cm	\epsilon_i\overset{iid}{\sim}\mathcal{SN}(0,\sigma^2,\alpha).
+\end{align}
+where $\sum^m_{t=1} g(\pmb x_i; \mathcal{T}_t,\mathcal{M}_t)$ is the SBART model.
+
+Using the stochastic representation of \eqref{sksto}, we can rewrite \eqref{uniskew} as
+\begin{align}\label{uni_skew_final}
+	Y_i = \sum^m_{t=1} g(\pmb x_i; \mathcal{T}_t,\mathcal{M}_t) + \lambda |Z_i| + W_i
+\end{align}
+where $W_i\sim\mathcal{N}(0,\tau^2)$, $Z_i\sim \mathcal{N}(0,1)$, $\lambda = \alpha \sigma / \sqrt{1 + \alpha^2}$ and $\tau = \sigma / \sqrt{1 + \alpha^2}$.
+
+#### Multivariate skewBART (multi-skewBART)
+
+We extend the `skewBART` using the multivariate skew-normal distribution to accommodate multivariate outcomes. This extension improves prediction accuracy by incorporating the correlation between responses, as well as the dependency in error estimation. Our proposed multivariate `skewBART`, called `multi-skewBART`, approximates the multivariate response $\pmb Y = (\pmb Y_1, \ldots, \pmb Y_n)^T \in \mathbb R^{n \times k}$ as 
+\begin{align}\label{mshock}
+	\pmb{Y}_i = \sum_{t=1}^m \pmb g_t(\pmb x_i; \mathcal{T}_t, \pmb{M}_t)+ \pmb\epsilon_i,\hskip1.5cm \pmb\epsilon_i\overset{iid}{\sim}\mathcal{SN}_k(\pmb0,\Sigma, \Lambda) ,
+\end{align}
+where $\pmb g_t(\pmb x_i;\mathcal{T}_t,\pmb{M}_t)$ returns a $k$-dimensional $\pmb\mu_{t\ell}$ if $\pmb x_i$ is associated with the leaf node $\ell$ in $\mathcal{T}_{t}$ for $\ell=1,\ldots,n_t$. The tree $\mathcal{T}_t$ in \eqref{mshock} has a binary tree structure like univariate \texttt{skewBART} but $\pmb{M}_t=\{\pmb{\mu}_{t1},\cdots,\pmb{\mu}_{tn_t}\}$  is 
+now a set of $k-$dimensional leaf parameters. Using the stochastic representation of the MSN distribution in  \eqref{multishock_stochastic}, the \texttt{multi-skewBART} model of \eqref{mshock} is now expressed as 
+\begin{align*}
+	\pmb Y_{i} = \sum_{t=1}^m \pmb g_t(\pmb x_i; \mathcal{T}_t, \mathcal{M}_t) + \Lambda|\pmb Z_{i}| + \pmb W_i\ ,
+\end{align*}
+where 
+$\pmb{Z}_i=(Z_{i1},\cdots,Z_{ik})\overset{iid}{\sim} \mathcal{N}_k(\pmb0, \pmb I_k)$, $\pmb{W}_i=(W_{i1},\ldots,W_{ik})\overset{iid}{\sim}\mathcal{N}_k(\pmb0,\pmb\Sigma)$, 
+$\Sigma$ is a positive definite $(k\times k)$ scale matrix, and the skewness matrix $\Lambda$ is a diagonal $(k\times k)$  matrix with diagonal entries $\lambda_{1},\ldots,\lambda_{k}$. For the multivariate model, we use the BART framework to consider the association between responses without adapting to smoothness.
+
+
+
+
+
+## Simulation 
+
+
+
+### `skewBART` package
+
+#### Data
+The following is an example on “Friedman’s example”:
+
+```{r, eval = FALSE}
+## Load library
+library(skewBART)
+library(zeallot)
+
+## Create a function for Friedman’s example
+sim_fried <- function(N, P, alpha, sigma) {
+  lambda <- alpha * sigma/sqrt(1+alpha^2)
+  tau <- sigma/sqrt(1+alpha^2)
+  X <- matrix(runif(N * P), nrow = N)
+  mu <- 10 * sin(pi * X[,1] * X[,2]) + 20 * (X[,3] - 0.5)^2 + 10 * X[,4] + 5 * X[,5]
+  Z <- abs(rnorm(N, mean=0, sd=1) )
+  Y <- mu + lambda * Z + rnorm(N, mean=0, sd=sqrt(tau))
+  EY <- mu + lambda * sqrt(2/pi)
+  return(list(X = X, Y = Y, EY = EY, mu = mu, Z=Z, tau = tau, lambda = lambda))
+}
+
+## Simulate dataset
+## Traning dataset : n = 250 observations, P = 5 covariates, sigma = 2, alpha = 5 
+set.seed(12345)
+c(X,Y,EY,mu,Z,tau,lambda) %<-% sim_fried(250, 5, 5, 2)
+
+## Test dataset : n = 100 observations, P = 5 covariates, sigma = 2, alpha = 5
+c(test_X,test_Y,test_EY,test_mu,test_Z,test_tau,test_lambda)  %<-% sim_fried(100, 5, 5 ,2)
+```
+
+The function `Hypers` produces a list of the hyperparameters of the model. 
+
+```{r, eval = FALSE}
+hypers <- Hypers(X, Y)
+opts <- Opts(num_burn = 5000, num_save = 5000)
+```
+
+We can fit the model as 
+
+```{r, eval = FALSE}
+## Fit the model
+fitted_skewbart <- skewBART(X, Y, test_X, hypers, opts)
+```
+
+### Results
+
+We compare \texttt{skewBART} to BART as well as SBART when data generation process varies with skewness levels. We simulate $n=250$ observations, with $\sigma^2=1$ and use $m = 200$ trees. The skewness values are equally spaced points in the range ($-10, 10$), with increment of 1. To compare model performance we use Conditional Predictive Ordinate (CPO), where $\text{CPO}_i=f(Y_i|\pmb{Y}_{-i},\pmb{X})$ is the predictive density of the $i$th observation given $\pmb{Y}_{-i}=(Y_i,\ldots,Y_{i-1},Y_{i+1},\ldots,Y_n)$ and $\pmb{X}=(\pmb{X}_1,\ldots,\pmb{X}_n)$. A natural summary statistic of the $\text{CPO}_i$'s is the log pseudomarginal likelihood (LPML), given by $\text{LPML}=\sum_{i=1}^n\log(\text{CPO}_i)$. The computations of LPML are
+conveniently based on the Markov chain output using the `loo` package in `R`.
+
+```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=3, warning=FALSE}
+library(ggplot2)
+load("~/Documents/CODES(2020)/revision_workingspace/Alpha/alpah_skwn_new.RData")
+load("~/Documents/CODES(2020)/revision_workingspace/Alpha/alpha_soft_new.RData")
+
+df <-data.frame(LPML=c( loo_skew_mat[,1],loo_soft_mat[,1],loo_BART_mat[,1]),method=rep(c("skewBART","SBART","BART"),each=length(alpha.vec)),
+                alpha=rep(alpha.vec,3),
+                lb = c(loo_skew_mat[,1] - 2*loo_skew_mat[,4],
+                       loo_soft_mat[,1] - 2*loo_soft_mat[,4],
+                       loo_BART_mat[,1] - 2*loo_BART_mat[,4]),
+                ub = c(loo_skew_mat[,1] + 2*loo_skew_mat[,4],
+                       loo_soft_mat[,1] + 2*loo_soft_mat[,4],
+                       loo_BART_mat[,1] + 2*loo_BART_mat[,4])
+)
+df$method <- factor(df$method, levels = unique(df$method) )
+custom.col <- c("#E41A1C", "#377EB8", "#E7861B")
+
+ggplot(df, aes(x=alpha, y=LPML, group=method))+ 
+  geom_point(aes(color=method, shape=method)) + 
+  geom_smooth(span = 0.3, aes(color=method), size=0.7, alpha=0.1, method='loess',formula= 'y ~ x') + 
+  ylab("LPML") +  xlab(expression(alpha)) + theme_bw() + 
+  theme(legend.title = element_blank(), legend.position="bottom") + 
+  scale_colour_manual(values=custom.col)+
+  scale_fill_manual(values = custom.col)
+```
+
+
+Next, at the fixed $\alpha=3$, the following plot represents fitted vs. actual values.
+
+```{r, echo=FALSE, fig.align='center', fig.width=4, fig.height=3}
+library(ggplot2)
+load("~/Desktop/univariate.RData")
+ggplot(df, aes(x=fitted, y=mu)) + geom_point(shape=2, col = "darkgreen", size = 2) + 
+  theme_bw() + geom_abline(col = "orange3")  + ylab("E(Y)")
+```
+
+
+
+
+### `MultiskewBART` package
+
+#### Data
+
+The following is an example on “Friedman’s example” for bivariate responses:
+
+```{r, eval = FALSE}
+## Load library
+library(MultiskewBART)
+library(MASS)
+library(zeallot)
+
+## Create a function for Friedman example with multivariate framework
+sim_data_multi <- function(N, P, lambda, tau, rho) {
+  X <- matrix(runif(N * P), nrow = N)
+  mu <- 10 * sin(pi * X[,1] * X[,2]) + 20 * (X[,3] - 0.5)^2 + 10 * X[,4] + 5 * X[,5] 
+  Z <- cbind(lambda[1] * abs(rnorm(N)), lambda[2] * abs(rnorm(N)))
+  Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+  Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+  Y <- cbind(mu, mu) + Z + Err
+  EY <- rbind(mu, mu) + lambda * sqrt(2/pi)
+  return( list(X = X, Y = Y, EY=EY, mu = mu, lambda = lambda, tau=tau, Z= Z, Sigma = Sigma) )
+}
+
+## Simulate dataset
+## Traning dataset : n = 250 observations, P = 5 covariates, lambda = (2,3), tau = c(1,1), rho = 0.5.
+set.seed(12345)
+c(X,Y,EY,mu,lambda,tau,Z,Sigma) %<-% sim_data_multi(250, 5, c(2,3), c(1,1), 0.5)
+
+## Test dataset : n = 250 observations, P = 5 covariates, lambda = (2,3), tau = c(1,1), rho = 0.5.
+c(test_X,test_Y,test_EY,test_mu,test_lambda,test_tau,test_Z,test_Sigma) %<-% sim_data_multi(100, 5, c(2,3), c(1,1), 0.5)
+
+## Create a list of the hyperparameters of the model. 
+hypers <- Hypers(X = X, Y = Y)
+opts <- Opts(num_burn = 5000, num_save = 5000)
+```
+
+We can then fit the model as 
+
+```{r, eval = FALSE}
+fitted_Multiskewbart <- MultiskewBART(X = X, Y = Y, test_X = test_X, hypers=hypers, opts=opts) 
+```
+
+
+
+#### Result
+We consider 9 different settings varying with $\lambda_1, \lambda_2$, the skewness parameters, and $\rho$, the correlation parameter in the bivariate specification, as displayed in the following figure. 
+
+```{r, include=FALSE}
+library(mvtnorm)
+library(MASS)
+library(tidyverse)
+library(ggplot2) 
+library(grid)
+library(gridExtra)
+library(reshape2)
+```
+
+```{r, echo=FALSE,fig.align='center'}
+N <- 10000
+tau <- c(1,1)
+lambda <- c(0, 3)
+rho <- 0
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data1 <- as.data.frame(Z + Err)
+lambda <- c(0, 3)
+tau <- c(1,1)
+rho <- 0.5
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data2 <- as.data.frame(Z + Err)
+lambda <- c(0, 3)
+tau <- c(1,1)
+rho <- 0.9
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data3 <- as.data.frame(Z + Err)
+lambda <- c(2, 3)
+rho <- 0
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data4 <- as.data.frame(Z + Err)
+lambda <- c(2, 3)
+tau <- c(1,1)
+rho <- 0.5
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data5 <- as.data.frame(Z + Err)
+lambda <- c(2, 3)
+tau <- c(1,1)
+rho <- 0.9
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data6 <- as.data.frame(Z + Err)
+lambda <- c(-2, 2)
+rho <- 0
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data7 <- as.data.frame(Z + Err)
+lambda <- c(-2, 2)
+tau <- c(1,1)
+rho <- 0.5
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data8 <- as.data.frame(Z + Err)
+lambda <- c(-2, 2)
+tau <- c(1,1)
+rho <- 0.9
+Z1 <- lambda[1] * abs(rnorm(N))
+Z2 <- lambda[2] * abs(rnorm(N))
+Z <- cbind(Z1, Z2)
+Sigma <- matrix(c(tau[1], sqrt(tau[1]*tau[2])*rho, sqrt(tau[1]*tau[2])*rho, tau[2]), 2, 2)
+Err <- mvrnorm(n=N, mu=c(0,0), Sigma = Sigma)
+data9 <- as.data.frame(Z + Err)
+############################################################################
+data <- cbind(rbind(data1, data2, data3), rep(1:3, each=N))
+data <- cbind(rbind(data4, data5, data6), rep(1:3, each=N))
+data <- cbind(rbind(data7, data8, data9), rep(1:3, each=N))
+data <- cbind(rbind(data1, data2, data3, data4, data5, data6, data7, data8, data9), rep(1:9, each=N))
+colnames(data) <- c("x", "y", "id")
+data <- cbind(rbind(data1, data2, data3, data4, data5, data6, data7, data8, data9), rep(1:9, each=N))
+colnames(data) <- c("x", "y", "id")
+facet_names <- c(
+  '1' = expression(paste(lambda,"=(0,3), ",rho,"=0")),
+  '2' = expression(paste(lambda,"=(0,3), ",rho,"=0.5")),
+  '3' = expression(paste(lambda,"=(0,3), ",rho,"=0.9")),
+  '4' = expression(paste(lambda,"=(2,3), ",rho,"=0")),
+  '5' = expression(paste(lambda,"=(2,3), ",rho,"=0.5")),
+  '6' = expression(paste(lambda,"=(2,3), ",rho,"=0.9")),
+  '7' = expression(paste(lambda,"=(-2,2), ",rho,"=0")),
+  '8' = expression(paste(lambda,"=(-2,2), ",rho,"=0.5")),
+  '9' = expression(paste(lambda,"=(-2,2), ",rho,"=0.9"))
+)
+data <- mutate_at(data,.vars="id",.funs=factor,labels=facet_names)
+ggplot(data, aes(x = x, y = y, group = id, colour = id)) +
+  stat_density_2d(aes(fill = ..level..), geom = "polygon", colour="white") +
+  facet_wrap(~ id,scales="free", labeller =label_parsed) + theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.title.x = element_text(color="white"), axis.title.y = element_text(color="white") ,
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(0.3,"cm"),legend.key.height = unit(0.5,"cm"), legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),strip.text.x = element_text(size = 8)) 
+```
+
+We compare \texttt{multi-skewBART} to the multi-BART, the multivariate version of the standard BART model, via LPML, with 200 trees and 5,000 MCMC draws. Results of this simulation are presented in the follwoing table. 
+
+```{r, echo=FALSE}
+library(knitr)
+multi_skew <- c(-356.677, 330.328, -287.791, -396.685, -382.333, -386.478, -369.528, -312.813, -311.486)
+multi<- c( -360.145, -346.016, -308.521, -427.258, -412.068, -400.468, -396.559, -384.575, -325.217 )
+lambda <- rep(c("(0,3)", "(2,3)", "(2,2)"), each=3)
+rho <- rep(c("0","0.5","0.9"),3)
+```
+
+```{r, echo=FALSE}
+cbind(lambda, rho, multi_skew, multi)%>%
+  kbl() %>%
+  kable_styling()
+```
