@@ -38,7 +38,11 @@ MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TR
   mu_test_out <- array(NA, c(nrow(test_X), 2, iter))
   Sigma_chain <- hypers$Sigma_hat
   l <- c(0, 0);  u <- c(Inf, Inf)
-
+  if(Wishart) {
+    S0 <- hypers$S0
+    nu <- hypers$nu
+   }
+    
   XXtest <- quantile_normalize(X, test_X)
   X <- XXtest$X
   test_X <- XXtest$test_X
