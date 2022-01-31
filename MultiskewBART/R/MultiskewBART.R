@@ -57,6 +57,10 @@ MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TR
     my_forest$set_sigma(Sigma_chain)
     mu_hat_chain <- my_forest$do_gibbs(X, R, X, 1)[,,1]
     delta <- R - mu_hat_chain
+    if(wishart) {
+      B <- delta - Z %*% diag(Lambda)
+      Sigma_chain <- solve(rwish( nrow(Y_scaled) + nu , solve(t(B) %*% B  + S0) ))
+    }
     Sigma_chain <- update_sigma(delta, Sigma_chain, hypers)
     mu_hat_test <- my_forest$predict(test_X)
     if(do_skew) {
