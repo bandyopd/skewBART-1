@@ -22,7 +22,7 @@
 #' }
 #' @export
 #'
-MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TRUE){
+MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TRUE, Wishart = FALSE){
 
   mean_Z <- Sigma_Z <- NULL
 
@@ -57,7 +57,7 @@ MultiskewBART <- function(X, Y, test_X, hypers = NULL, opts = NULL, do_skew = TR
     my_forest$set_sigma(Sigma_chain)
     mu_hat_chain <- my_forest$do_gibbs(X, R, X, 1)[,,1]
     delta <- R - mu_hat_chain
-    if(wishart) {
+    if(Wishart) {
       B <- delta - Z %*% diag(Lambda)
       Sigma_chain <- solve(rwish( nrow(Y_scaled) + nu , solve(t(B) %*% B  + S0) ))
     }
