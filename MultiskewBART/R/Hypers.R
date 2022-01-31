@@ -36,13 +36,14 @@ Hypers <- function(X, Y, group = NULL, alpha = 1, beta = 2, gamma = 0.95, k = 2,
   r_hat       <- sigma_2_hat / sigma_1_hat
   Sigma_hat   <- cov(cbind(residuals(fit_lm_Y_1), residuals(fit_lm_Y_2_x)))
 
-
+  S0 <- Sigma_hat
+  nu <- ncol(X)
 
   out <- list(alpha = alpha, beta = beta, gamma = gamma,
               Sigma_mu_hat = Sigma_mu_hat, k = k, num_tree = num_tree,
               Sigma_hat = Sigma_hat, temperature = 1,
               sigma_1_hat = sigma_1_hat, sigma_2_hat = sigma_2_hat,
-              r_hat = r_hat, group = group)
+              r_hat = r_hat, group = group, nu = nu, S0 = S0)
 
   return(out)
 
